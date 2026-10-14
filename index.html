@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>원룸 체크 비교</title>
+  <meta name="description" content="직접 본 원룸 매물을 체크리스트로 점수화해 한눈에 비교합니다.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <h1><a href="#" id="home-link">원룸 체크 비교</a></h1>
+      <p class="tagline">직접 본 방을 체크리스트로 점수 매기고 한눈에 비교해요.</p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <!-- 페이지 전체 상태 안내: 로딩·오류 -->
+    <div id="app-status" class="status" role="status" aria-live="polite"></div>
+    <div id="storage-warning" class="notice notice-warn" role="alert" hidden></div>
+
+    <!-- 목록 화면 -->
+    <div id="list-view" hidden>
+      <section aria-labelledby="add-title" class="card">
+        <h2 id="add-title">매물 추가</h2>
+        <form id="add-form" novalidate>
+          <div id="add-form-error" class="notice notice-error" role="alert" hidden></div>
+          <div class="field-grid">
+            <div class="field field-wide">
+              <label for="f-name">매물 이름 <span class="req">(필수)</span></label>
+              <input id="f-name" name="name" type="text" maxlength="30" autocomplete="off"
+                     placeholder="예: 이문동 3층 남향" aria-describedby="f-name-help f-name-err">
+              <p id="f-name-help" class="help">구별하기 쉬운 별칭. 집주인 연락처 같은 개인정보는 적지 마세요.</p>
+              <p id="f-name-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="f-deposit">보증금 <span class="req">(필수, 만원)</span></label>
+              <input id="f-deposit" name="deposit" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="예: 500" aria-describedby="f-deposit-err">
+              <p id="f-deposit-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="f-rent">월세 <span class="req">(필수, 만원)</span></label>
+              <input id="f-rent" name="rent" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="예: 45" aria-describedby="f-rent-err">
+              <p id="f-rent-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="f-fee">관리비 <span class="opt">(선택, 만원)</span></label>
+              <input id="f-fee" name="fee" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="없으면 비워 두세요" aria-describedby="f-fee-err">
+              <p id="f-fee-err" class="field-error"></p>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">추가하고 체크리스트 작성</button>
+        </form>
+      </section>
+
+      <section aria-labelledby="compare-title" class="card">
+        <div class="section-head">
+          <h2 id="compare-title">한눈에 비교</h2>
+          <div class="sort">
+            <label for="sort-select">정렬</label>
+            <select id="sort-select">
+              <option value="score">판정·점수 순</option>
+              <option value="monthly">월 고정비 낮은 순</option>
+              <option value="deposit">보증금 낮은 순</option>
+              <option value="school">학교 가까운 순 (참고)</option>
+              <option value="recent">최근 추가 순</option>
+            </select>
+          </div>
+        </div>
+        <p class="help">필수 항목으로 <strong>통과·보류·탈락</strong>을 먼저 판정하고, 점수는 중요 80점 + 있으면 좋음 20점으로 매겨요(미확인은 0점). 위치·거리는 점수에 넣지 않고 각 매물 아래에 참고로 보여 줘요.</p>
+        <div id="compare-body"></div>
+      </section>
+
+      <section aria-labelledby="backup-title" class="card card-quiet">
+        <h2 id="backup-title">백업</h2>
+        <p class="help">기록은 이 브라우저에만 저장돼요. 다른 기기로 옮기거나 브라우저 기록을 지우기 전에 파일로 내려받아 두세요.</p>
+        <div class="btn-row">
+          <button type="button" id="export-btn" class="btn">백업 파일 내려받기</button>
+          <label class="btn" for="import-file">백업 파일 불러오기</label>
+          <input type="file" id="import-file" accept=".json,application/json" class="visually-hidden">
+        </div>
+        <div id="backup-status" class="status" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <!-- 매물 상세(체크리스트) 화면 -->
+    <div id="detail-view" hidden>
+      <div class="detail-top">
+        <button type="button" id="back-btn" class="btn">← 비교 목록으로</button>
+        <div class="score-pill" aria-live="polite" id="detail-score"></div>
+      </div>
+      <h2 id="detail-title" tabindex="-1"></h2>
+
+      <section aria-labelledby="info-title" class="card">
+        <h3 id="info-title">기본 정보</h3>
+        <form id="edit-form" novalidate>
+          <div id="edit-form-error" class="notice notice-error" role="alert" hidden></div>
+          <div class="field-grid">
+            <div class="field field-wide">
+              <label for="e-name">매물 이름</label>
+              <input id="e-name" name="name" type="text" maxlength="30" autocomplete="off" aria-describedby="e-name-err">
+              <p id="e-name-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="e-deposit">보증금 (만원)</label>
+              <input id="e-deposit" name="deposit" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-deposit-err">
+              <p id="e-deposit-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="e-rent">월세 (만원)</label>
+              <input id="e-rent" name="rent" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-rent-err">
+              <p id="e-rent-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="e-fee">관리비 (만원)</label>
+              <input id="e-fee" name="fee" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-fee-err">
+              <p id="e-fee-err" class="field-error"></p>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">정보 저장</button>
+            <button type="button" id="delete-btn" class="btn btn-danger">이 매물 삭제</button>
+          </div>
+        </form>
+      </section>
+
+      <section aria-labelledby="check-title">
+        <h3 id="check-title">체크리스트</h3>
+        <p class="help">고르는 즉시 저장돼요.</p>
+        <div id="checklist-body"></div>
+      </section>
+
+      <section aria-labelledby="ref-title" class="card">
+        <h3 id="ref-title">위치 참고 정보</h3>
+        <p class="help">점수에는 반영되지 않고, 비교표에서 매물 아래에 참고로 보여 줘요. 모두 선택 입력이에요.</p>
+        <form id="ref-form" novalidate>
+          <div id="ref-form-error" class="notice notice-error" role="alert" hidden></div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="r-place">동네</label>
+              <input id="r-place" name="place" type="text" maxlength="20" autocomplete="off"
+                     placeholder="예: 이문동" aria-describedby="r-place-help r-place-err">
+              <p id="r-place-help" class="help">동 이름까지만 적어요. 번지·호수 같은 상세 주소는 적지 마세요.</p>
+              <p id="r-place-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="r-school">학교까지 도보 (분)</label>
+              <input id="r-school" name="school" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="예: 7" aria-describedby="r-school-err">
+              <p id="r-school-err" class="field-error"></p>
+            </div>
+            <div class="field">
+              <label for="r-station">가까운 역까지 도보 (분)</label>
+              <input id="r-station" name="station" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="예: 5" aria-describedby="r-station-err">
+              <p id="r-station-err" class="field-error"></p>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">참고 정보 저장</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p id="data-info">체크리스트 정보를 불러오는 중…</p>
+      <p>입력한 매물 정보는 서버로 보내지 않고 이 브라우저(localStorage)에만 저장됩니다.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
