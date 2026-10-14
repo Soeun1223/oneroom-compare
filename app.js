@@ -384,7 +384,7 @@ function refText(l) {
   if (l.place) parts.push(esc(l.place));
   if (l.school != null) parts.push(`학교까지 도보 ${l.school}분`);
   if (l.station != null) parts.push(`역까지 도보 ${l.station}분`);
-  return parts.length ? parts.join(' · ') : '입력 안 함 (매물을 열어 아래쪽에서 입력할 수 있어요)';
+  return parts.length ? parts.join(' · ') : '입력 안 함 · 매물을 열어 맨 아래에서 입력';
 }
 
 function renderCompare() {
@@ -397,66 +397,43 @@ function renderCompare() {
       </div>`;
     return;
   }
-  const tiers = Object.fromEntries(state.checklist.tiers.map((t) => [t.id, t]));
   const rows = sortedListings();
   const passed = rows.filter((r) => r.s.verdict === 'pass' && r.s.answered > 0);
   const bestScore = passed.length ? Math.max(...passed.map((r) => r.s.score)) : -1;
-  const COLS = 7;
-
-  const head = `
-    <tr>
-      <th scope="col">매물</th>
-      <th scope="col">필수 판정</th>
-      <th scope="col">점수 (100)</th>
-      <th scope="col" class="num">중요<br><span class="progress">${tiers.important.points}점</span></th>
-      <th scope="col" class="num">있으면 좋음<br><span class="progress">${tiers.nice.points}점</span></th>
-      <th scope="col" class="num">보증금</th>
-      <th scope="col" class="num">월 고정비<br><span class="progress">월세+관리비</span></th>
-    </tr>`;
-
-  const bodies = rows.map(({ l, s }) => {
+  const cards = rows.map(({ l, s }) => {
     const best = s.verdict === 'pass' && s.score === bestScore;
     const reasons = s.verdict === 'fail' ? s.failed : s.verdict === 'hold' ? s.unknown : [];
     const p = s.parts;
     return `
-      <tbody class="listing ${best ? 'best' : ''} verdict-${s.verdict}">
-        <tr class="main-row">
-          <th scope="row" class="name-cell">
-            <a href="#/listing/${encodeURIComponent(l.id)}" data-id="${esc(l.id)}">${esc(l.name)}</a>
-            ${best ? '<div class="badges"><span class="badge badge-best">추천</span></div>' : ''}
-          </th>
-          <td data-label="필수 판정">
-            <span class="verdict v-${s.verdict}">${VERDICTS[s.verdict].label}</span>
-            <span class="progress" ${reasons.length ? `title="${esc(reasons.join(', '))}"` : ''}>${verdictNote(s)}</span>
-          </td>
-          <td data-label="점수">
-            <div class="score">
-              <span class="score-num">${s.score}점</span>
-              <span class="grade g-${s.grade}" aria-label="${s.grade}등급">${s.grade}</span>
-              <span class="bar" aria-hidden="true"><span style="width:${s.score}%"></span></span>
-            </div>
-            <span class="progress">확인 ${s.answered}/${s.total}</span>
-          </td>
-          <td class="num" data-label="중요">${p.important.points}<span class="progress">/${p.important.max}</span></td>
-          <td class="num" data-label="있으면 좋음">${p.nice.points}<span class="progress">/${p.nice.max}</span></td>
-          <td class="num" data-label="보증금">${formatMan(l.deposit)}</td>
-          <td class="num" data-label="월 고정비">${formatMan(l.rent + l.fee)}${l.fee ? `<br><span class="progress">${l.rent}+${l.fee}</span>` : ''}</td>
-        </tr>
-        <tr class="ref-row">
-          <td colspan="${COLS}"><span class="ref-label">위치 참고</span> ${refText(l)}</td>
-        </tr>
-      </tbody>`;
+      <li class="listing-card verdict-${s.verdict} ${best ? 'best' : ''}">
+        <div class="lc-head">
+          <h3 class="lc-name"><a href="#/listing/${encodeURIComponent(l.id)}" data-id="${esc(l.id)}">${esc(l.name)}</a></h3>
+          <span class="grade" aria-label="${s.grade}등급">${s.grade}</span>
+        </div>
+        <div class="lc-tags">
+          ${best ? '<span class="badge-best">추천</span>' : ''}
+          <span class="verdict v-${s.verdict}">${VERDICTS[s.verdict].label}</span>
+          <span class="note" ${reasons.length ? `title="${esc(reasons.join(', '))}"` : ''}>${verdictNote(s)}</span>
+        </div>
+        <div>
+          <div class="lc-score"><strong>${s.score}</strong><span>/ 100점 · 확인 ${s.answered}/${s.total}</span></div>
+          <div class="bar" aria-hidden="true"><span style="width:${s.score}%"></span></div>
+        </div>
+        <dl class="stat-grid">
+          <div class="stat"><dt>중요</dt><dd>${p.important.points}<small> / ${p.important.max}</small></dd></div>
+          <div class="stat"><dt>있으면 좋음</dt><dd>${p.nice.points}<small> / ${p.nice.max}</small></dd></div>
+          <div class="stat"><dt>보증금</dt><dd>${formatMan(l.deposit)}</dd></div>
+          <div class="stat"><dt>월 고정비</dt><dd>${formatMan(l.rent + l.fee)}${l.fee ? `<small> (${l.rent}+${l.fee})</small>` : ''}</dd></div>
+        </dl>
+        <p class="ref-box"><b>위치 참고</b>${refText(l)}</p>
+      </li>`;
   }).join('');
 
   body.innerHTML = `
-    <div class="table-wrap">
-      <table class="compare-table">
-        <caption class="visually-hidden">매물 ${rows.length}개 비교, ${$('#sort-select').selectedOptions[0].textContent}</caption>
-        <thead>${head}</thead>
-        ${bodies}
-      </table>
-    </div>
-    <p class="help">등급: S 90점 이상, A 75점 이상, B 60점 이상, C 60점 미만. ‘추천’은 필수 판정을 통과한 매물 중 점수가 가장 높은 곳이에요.</p>`;
+    <ul class="listing-grid" role="list" aria-label="매물 ${rows.length}개, ${esc($('#sort-select').selectedOptions[0].textContent)}">
+      ${cards}
+    </ul>
+    <p class="help" style="margin-top:16px">등급: S 90점 이상, A 75점 이상, B 60점 이상, C 60점 미만. ‘추천’은 필수 판정을 통과한 매물 중 점수가 가장 높은 곳이에요.</p>`;
 }
 
 /* ---------- 상세(체크리스트) 화면 ---------- */
