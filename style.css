@@ -4,14 +4,15 @@
   --surface-2: #f4f4f6;
   --line: #ececee;
   --text: #1c1d21;
-  --muted: #8e8f96;
+  --muted: #66676e;
   --ink: #2a2b30;
   --ink-text: #ffffff;
-  --red: #e5484d;
+  --red: #c8312f;
+  --on-red: #ffffff;
   --red-soft: #fdecec;
-  --green: #2f8a57;
+  --green: #1f6e43;
   --green-soft: #e7f5ec;
-  --amber: #b7791f;
+  --amber: #85570f;
   --amber-soft: #fbf1e1;
   --focus: #3b6cf6;
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
@@ -26,10 +27,11 @@
     --surface-2: #26272c;
     --line: #2e2f35;
     --text: #ececef;
-    --muted: #8e8f96;
+    --muted: #9a9ba2;
     --ink: #ececef;
     --ink-text: #1c1d21;
-    --red: #f2555a;
+    --red: #ff7a7e;
+    --on-red: #1c1d21;
     --red-soft: #3a1f21;
     --green: #5cc58a;
     --green-soft: #1d3326;
@@ -89,7 +91,6 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
   padding: 24px;
   margin-bottom: 20px;
 }
-.card-quiet { background: transparent; box-shadow: none; padding: 8px 4px; }
 
 .help { color: var(--muted); font-size: 0.9rem; margin: 0 0 16px; }
 
@@ -127,7 +128,6 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
 .btn-primary:hover { filter: brightness(1.15); }
 .btn-danger { color: var(--red); }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.btn-row label.btn:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 
 /* 상태 안내 */
 .status:empty { display: none; }
@@ -178,7 +178,7 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
   .listing-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 }
 .listing-card.best { border-color: var(--ink); }
-.listing-card.verdict-fail { opacity: 0.7; }
+.listing-card.verdict-fail { border-style: dashed; background: var(--surface-2); }
 .lc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .lc-name { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; margin: 0; }
 .lc-name a { color: inherit; text-decoration: none; }
@@ -209,7 +209,7 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
 .grade {
   flex: none; display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; border-radius: 50%;
-  background: var(--red); color: #fff; font-weight: 800; font-size: 0.95rem;
+  background: var(--red); color: var(--on-red); font-weight: 800; font-size: 0.95rem;
 }
 .area-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
 
@@ -233,7 +233,7 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
 .tier-essential .category-head h4::after {
   content: "!"; display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; border-radius: 50%; margin-left: 8px; vertical-align: 2px;
-  background: var(--red); color: #fff; font-size: 0.8rem;
+  background: var(--red); color: var(--on-red); font-size: 0.8rem;
 }
 
 .item { border: 0; border-top: 1px solid var(--line); margin: 0 24px; padding: 16px 0; min-width: 0; }
@@ -250,8 +250,8 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
 }
 .choice input:checked + span { color: #fff; }
 .choice input:checked + span.c-good { background: var(--ink); color: var(--ink-text); }
-.choice input:checked + span.c-okay { background: #6b6c72; }
-.choice input:checked + span.c-bad { background: var(--red); }
+.choice input:checked + span.c-okay { background: #5f6067; }
+.choice input:checked + span.c-bad { background: var(--red); color: var(--on-red); }
 .choice input:checked + span.c-none { background: var(--surface); color: var(--text); box-shadow: inset 0 0 0 2px var(--line); }
 .choice input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
 
@@ -264,8 +264,8 @@ h3 { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
   min-height: 44px; margin: -8px -4px; padding: 8px 4px; border-radius: 14px;
 }
 .fold > summary::-webkit-details-marker { display: none; }
-.fold > summary h2, .fold > summary h3 { margin: 0; }
-.fold-summary { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.fold > summary h2, .fold > summary h3 { margin: 0; white-space: nowrap; flex: none; }
+.fold-summary { color: var(--muted); font-size: 0.85rem; font-weight: 600; min-width: 0; }
 .fold[open] .fold-summary { display: none; }
 .fold-icon {
   margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%;

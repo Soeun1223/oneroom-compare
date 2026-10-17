@@ -4,7 +4,6 @@ const STORAGE_KEY = 'oneroom-compare:v1';
 const CHECKLIST_URL = 'data/checklist.json';
 const FETCH_TIMEOUT_MS = 10000;
 const MAX_LISTINGS = 30;
-const MAX_IMPORT_BYTES = 1024 * 1024;
 const ANSWERS = ['good', 'okay', 'bad'];
 const MAX_MINUTES = 180;
 // 번지(12-3), 호수(301호), 도로명 번호(이문로 107)처럼 상세 주소로 보이는 입력
@@ -66,7 +65,7 @@ function isValidAmount(v, max) {
   return Number.isInteger(v) && v >= 0 && v <= max;
 }
 
-// 저장된 데이터나 백업 파일에서 읽은 매물 하나를 검사한다. 맞지 않으면 throw.
+// 저장된 데이터에서 읽은 매물 하나를 검사한다. 맞지 않으면 throw.
 function sanitizeListing(raw) {
   if (!raw || typeof raw !== 'object') throw new Error('매물 항목이 객체가 아님');
   const name = typeof raw.name === 'string' ? raw.name.trim() : '';
@@ -131,7 +130,7 @@ function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, listings: state.listings }));
     return true;
   } catch {
-    showStorageWarning('저장 공간이 부족하거나 브라우저가 저장을 막아서 방금 바꾼 내용을 저장하지 못했어요. 백업 파일을 내려받아 두고, 브라우저 설정에서 이 사이트의 저장을 허용해 주세요.');
+    showStorageWarning('저장 공간이 부족하거나 브라우저가 저장을 막아서 방금 바꾼 내용을 저장하지 못했어요. 브라우저 설정에서 이 사이트의 저장을 허용해 주세요.');
     return false;
   }
 }
@@ -680,47 +679,6 @@ function bindEvents() {
     listing.updatedAt = Date.now();
     save();
     updateDetailScore(listing);
-  });
-
-  $('#export-btn').addEventListener('click', () => {
-    if (!state.listings.length) {
-      $('#backup-status').innerHTML = '<div class="notice notice-warn"><p>내려받을 매물이 없어요. 먼저 매물을 추가해 주세요.</p></div>';
-      return;
-    }
-    downloadText(`oneroom-backup-${today()}.json`, JSON.stringify({ version: 1, listings: state.listings }, null, 2));
-    $('#backup-status').innerHTML = `<div class="notice notice-info"><p>매물 ${state.listings.length}개를 백업 파일로 내려받았어요.</p></div>`;
-  });
-
-  $('#import-file').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
-    const status = $('#backup-status');
-    const fail = (why) => {
-      status.innerHTML = `<div class="notice notice-error"><p>백업 파일을 불러오지 못했어요. ${esc(why)}</p><p>이 사이트에서 ‘백업 파일 내려받기’로 만든 .json 파일을 골라 주세요. 기존 기록은 그대로예요.</p></div>`;
-    };
-    if (file.size > MAX_IMPORT_BYTES) return fail('파일이 1MB보다 커요.');
-    let data;
-    try {
-      data = JSON.parse(await file.text());
-    } catch {
-      return fail('JSON 형식의 파일이 아니에요.');
-    }
-    let listings;
-    try {
-      listings = parseListings(data);
-    } catch (err) {
-      return fail(`이 사이트의 백업 형식과 달라요(${err.message}).`);
-    }
-    if (!listings.length) return fail('파일에 매물이 하나도 없어요.');
-    if (state.listings.length && !confirm(`지금 있는 매물 ${state.listings.length}개를 백업 파일의 매물 ${listings.length}개로 바꿀까요?`)) {
-      status.innerHTML = '<div class="notice notice-info"><p>불러오기를 취소했어요. 기존 기록은 그대로예요.</p></div>';
-      return;
-    }
-    state.listings = listings;
-    save();
-    renderCompare();
-    status.innerHTML = `<div class="notice notice-info"><p>매물 ${listings.length}개를 불러왔어요.</p></div>`;
   });
 }
 
