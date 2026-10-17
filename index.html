@@ -26,8 +26,8 @@
 
     <!-- 목록 화면 -->
     <div id="list-view" hidden>
-      <section aria-labelledby="add-title" class="card">
-        <h2 id="add-title">매물 추가</h2>
+      <details id="add-card" class="card fold" open>
+        <summary><h2 id="add-title">매물 추가</h2><span class="fold-icon" aria-hidden="true"></span></summary>
         <form id="add-form" novalidate>
           <div id="add-form-error" class="notice notice-error" role="alert" hidden></div>
           <div class="field-grid">
@@ -59,7 +59,7 @@
           </div>
           <button type="submit" class="btn btn-primary">추가하고 체크리스트 작성</button>
         </form>
-      </section>
+      </details>
 
       <section aria-labelledby="compare-title" class="card">
         <div class="section-head">
@@ -94,79 +94,85 @@
     <!-- 매물 상세(체크리스트) 화면 -->
     <div id="detail-view" hidden>
       <div class="detail-top">
-        <button type="button" id="back-btn" class="btn">← 비교 목록으로</button>
+        <button type="button" id="back-btn" class="btn">← <span class="sm-hide">비교&nbsp;</span>목록</button>
         <div class="score-pill" aria-live="polite" id="detail-score"></div>
       </div>
       <h2 id="detail-title" tabindex="-1"></h2>
 
-      <section aria-labelledby="info-title" class="card">
-        <h3 id="info-title">기본 정보</h3>
-        <form id="edit-form" novalidate>
-          <div id="edit-form-error" class="notice notice-error" role="alert" hidden></div>
-          <div class="field-grid">
-            <div class="field field-wide">
-              <label for="e-name">매물 이름</label>
-              <input id="e-name" name="name" type="text" maxlength="30" autocomplete="off" aria-describedby="e-name-err">
-              <p id="e-name-err" class="field-error"></p>
-            </div>
-            <div class="field">
-              <label for="e-deposit">보증금 (만원)</label>
-              <input id="e-deposit" name="deposit" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-deposit-err">
-              <p id="e-deposit-err" class="field-error"></p>
-            </div>
-            <div class="field">
-              <label for="e-rent">월세 (만원)</label>
-              <input id="e-rent" name="rent" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-rent-err">
-              <p id="e-rent-err" class="field-error"></p>
-            </div>
-            <div class="field">
-              <label for="e-fee">관리비 (만원)</label>
-              <input id="e-fee" name="fee" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-fee-err">
-              <p id="e-fee-err" class="field-error"></p>
-            </div>
-          </div>
-          <div class="btn-row">
-            <button type="submit" class="btn btn-primary">정보 저장</button>
-            <button type="button" id="delete-btn" class="btn btn-danger">이 매물 삭제</button>
-          </div>
-        </form>
-      </section>
+      <div class="detail-layout">
+        <div class="detail-main">
+          <section aria-labelledby="check-title">
+            <h3 id="check-title">체크리스트</h3>
+            <p class="help">고르는 즉시 저장돼요.</p>
+            <div id="checklist-body"></div>
+          </section>
+        </div>
+        <aside class="detail-side" aria-label="매물 요약과 정보">
+          <section id="side-score" class="card side-score" aria-label="점수 요약"></section>
+          <details id="info-card" class="card fold">
+            <summary><h3 id="info-title">기본 정보</h3><span id="info-summary" class="fold-summary"></span><span class="fold-icon" aria-hidden="true"></span></summary>
+            <form id="edit-form" novalidate>
+              <div id="edit-form-error" class="notice notice-error" role="alert" hidden></div>
+              <div class="field-grid">
+                <div class="field field-wide">
+                  <label for="e-name">매물 이름</label>
+                  <input id="e-name" name="name" type="text" maxlength="30" autocomplete="off" aria-describedby="e-name-err">
+                  <p id="e-name-err" class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="e-deposit">보증금 (만원)</label>
+                  <input id="e-deposit" name="deposit" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-deposit-err">
+                  <p id="e-deposit-err" class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="e-rent">월세 (만원)</label>
+                  <input id="e-rent" name="rent" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-rent-err">
+                  <p id="e-rent-err" class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="e-fee">관리비 (만원)</label>
+                  <input id="e-fee" name="fee" type="text" inputmode="numeric" autocomplete="off" aria-describedby="e-fee-err">
+                  <p id="e-fee-err" class="field-error"></p>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-primary">정보 저장</button>
+                <button type="button" id="delete-btn" class="btn btn-danger">이 매물 삭제</button>
+              </div>
+            </form>
+          </details>
 
-      <section aria-labelledby="check-title">
-        <h3 id="check-title">체크리스트</h3>
-        <p class="help">고르는 즉시 저장돼요.</p>
-        <div id="checklist-body"></div>
-      </section>
-
-      <section aria-labelledby="ref-title" class="card">
-        <h3 id="ref-title">위치 참고 정보</h3>
-        <p class="help">점수에는 반영되지 않고, 비교표에서 매물 아래에 참고로 보여 줘요. 모두 선택 입력이에요.</p>
-        <form id="ref-form" novalidate>
-          <div id="ref-form-error" class="notice notice-error" role="alert" hidden></div>
-          <div class="field-grid">
-            <div class="field">
-              <label for="r-place">동네</label>
-              <input id="r-place" name="place" type="text" maxlength="20" autocomplete="off"
-                     placeholder="예: 이문동" aria-describedby="r-place-help r-place-err">
-              <p id="r-place-help" class="help">동 이름까지만 적어요. 번지·호수 같은 상세 주소는 적지 마세요.</p>
-              <p id="r-place-err" class="field-error"></p>
-            </div>
-            <div class="field">
-              <label for="r-school">학교까지 도보 (분)</label>
-              <input id="r-school" name="school" type="text" inputmode="numeric" autocomplete="off"
-                     placeholder="예: 7" aria-describedby="r-school-err">
-              <p id="r-school-err" class="field-error"></p>
-            </div>
-            <div class="field">
-              <label for="r-station">가까운 역까지 도보 (분)</label>
-              <input id="r-station" name="station" type="text" inputmode="numeric" autocomplete="off"
-                     placeholder="예: 5" aria-describedby="r-station-err">
-              <p id="r-station-err" class="field-error"></p>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary">참고 정보 저장</button>
-        </form>
-      </section>
+          <section id="ref-card" aria-labelledby="ref-title" class="card">
+            <h3 id="ref-title">위치 참고 정보</h3>
+            <p class="help">점수에는 반영되지 않고, 비교 카드 아래쪽에 참고로 보여 줘요. 모두 선택 입력이에요.</p>
+            <form id="ref-form" novalidate>
+              <div id="ref-form-error" class="notice notice-error" role="alert" hidden></div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="r-place">동네</label>
+                  <input id="r-place" name="place" type="text" maxlength="20" autocomplete="off"
+                         placeholder="예: 이문동" aria-describedby="r-place-help r-place-err">
+                  <p id="r-place-help" class="help">동 이름까지만 적어요. 번지·호수 같은 상세 주소는 적지 마세요.</p>
+                  <p id="r-place-err" class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="r-school">학교까지 도보 (분)</label>
+                  <input id="r-school" name="school" type="text" inputmode="numeric" autocomplete="off"
+                         placeholder="예: 7" aria-describedby="r-school-err">
+                  <p id="r-school-err" class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="r-station">가까운 역까지 도보 (분)</label>
+                  <input id="r-station" name="station" type="text" inputmode="numeric" autocomplete="off"
+                         placeholder="예: 5" aria-describedby="r-station-err">
+                  <p id="r-station-err" class="field-error"></p>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">참고 정보 저장</button>
+            </form>
+          </section>
+        </aside>
+      </div>
     </div>
   </main>
 

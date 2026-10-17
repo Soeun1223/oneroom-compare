@@ -447,7 +447,28 @@ function updateDetailScore(listing) {
   const saved = state.storageOK ? '저장됨' : '저장 안 됨';
   const pill = $('#detail-score');
   pill.className = `score-pill pill-${s.verdict}`;
-  pill.textContent = `${VERDICTS[s.verdict].label} · ${s.score}점(${s.grade}) · 확인 ${s.answered}/${s.total} · ${saved}`;
+  // 좁은 화면에서는 판정·점수·등급만 보이고 나머지는 숨긴다(화면 읽기 프로그램은 전부 읽음).
+  pill.innerHTML = `<b>${VERDICTS[s.verdict].label}</b> ${s.score}점 · ${s.grade}<span class="sm-hide"> · 확인 ${s.answered}/${s.total} · ${saved}</span>`;
+
+  // PC 옆 패널의 점수 요약
+  const p = s.parts;
+  const reasons = s.verdict === 'fail' ? s.failed : s.verdict === 'hold' ? s.unknown : [];
+  $('#side-score').innerHTML = `
+    <div class="lc-head">
+      <span class="verdict v-${s.verdict}">${VERDICTS[s.verdict].label}</span>
+      <span class="grade" aria-label="${s.grade}등급">${s.grade}</span>
+    </div>
+    <div>
+      <div class="lc-score"><strong>${s.score}</strong><span>/ 100점</span></div>
+      <div class="bar" aria-hidden="true"><span style="width:${s.score}%"></span></div>
+    </div>
+    <dl class="stat-grid">
+      <div class="stat"><dt>중요</dt><dd>${p.important.points}<small> / ${p.important.max}</small></dd></div>
+      <div class="stat"><dt>있으면 좋음</dt><dd>${p.nice.points}<small> / ${p.nice.max}</small></dd></div>
+      <div class="stat"><dt>필수 확인</dt><dd>${p.essential.done}<small> / ${p.essential.count}</small></dd></div>
+      <div class="stat"><dt>전체 확인</dt><dd>${s.answered}<small> / ${s.total}</small></dd></div>
+    </dl>
+    ${reasons.length ? `<p class="note">${s.verdict === 'fail' ? '문제' : '미확인'}: ${esc(reasons.join(', '))}</p>` : ''}`;
   for (const tier of state.checklist.tiers) {
     const el = document.getElementById(`tier-score-${tier.id}`);
     if (!el) continue;
@@ -458,6 +479,10 @@ function updateDetailScore(listing) {
   }
 }
 
+function updateInfoSummary(listing) {
+  $('#info-summary').textContent = `보증금 ${formatMan(listing.deposit)} · 월 ${formatMan(listing.rent + listing.fee)}`;
+}
+
 function renderDetail(listing) {
   $('#detail-title').textContent = listing.name;
   const form = $('#edit-form');
@@ -466,6 +491,9 @@ function renderDetail(listing) {
   form.elements.rent.value = listing.rent;
   form.elements.fee.value = listing.fee;
   showFormErrors(form, 'e', {});
+  updateInfoSummary(listing);
+  // 휴대전화에서는 체크리스트가 먼저 보이도록 기본 정보를 접어 둔다.
+  $('#info-card').open = window.matchMedia('(min-width: 1024px)').matches;
 
   const ref = $('#ref-form');
   ref.elements.place.value = listing.place;
@@ -529,6 +557,7 @@ function route() {
     const listing = findListing(id);
     if (listing) {
       currentId = id;
+      document.body.dataset.view = 'detail';
       $('#list-view').hidden = true;
       $('#detail-view').hidden = false;
       renderDetail(listing);
@@ -540,8 +569,11 @@ function route() {
     setAppStatus(`<div class="notice notice-warn"><p>찾는 매물이 없어요. 삭제되었거나 다른 브라우저에서 만든 링크일 수 있어요. 아래 목록에서 다시 골라 주세요.</p></div>`);
   }
   currentId = null;
+  document.body.dataset.view = 'list';
   $('#detail-view').hidden = true;
   $('#list-view').hidden = false;
+  // 매물이 있으면 비교 카드가 먼저 보이도록 추가 폼을 접어 둔다.
+  $('#add-card').open = state.listings.length === 0;
   document.title = '원룸 체크 비교';
   renderCompare();
   if (prevId) {
@@ -610,6 +642,7 @@ function bindEvents() {
     $('#detail-title').textContent = listing.name;
     document.title = `${listing.name} · 원룸 체크 비교`;
     flashNotice($('#edit-form-error'), ok, '기본 정보를 저장했어요.');
+    updateInfoSummary(listing);
     updateDetailScore(listing);
   });
 
