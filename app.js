@@ -321,13 +321,32 @@ function validateRef(form) {
   return { values, errors };
 }
 
+let toastTimer = null;
+
+// 화면 아래에 잠깐 떴다가 사라지는 알림. 화면 읽기 프로그램에도 읽힌다.
+function showToast(msg, ok = true) {
+  const el = $('#toast');
+  clearTimeout(toastTimer);
+  el.textContent = msg;
+  el.classList.toggle('toast-error', !ok);
+  el.classList.remove('show');
+  void el.offsetWidth; // 같은 알림이 연달아 와도 애니메이션을 다시 시작
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), ok ? 1600 : 4000);
+}
+
+const SAVE_FAILED = '저장하지 못했어요. 화면 위쪽 안내를 확인해 주세요.';
+
 function flashNotice(box, ok, okMsg) {
-  box.className = ok ? 'notice notice-info' : 'notice notice-error';
-  box.textContent = ok ? okMsg : '바뀐 정보를 저장하지 못했어요. 위 경고를 확인해 주세요.';
+  if (ok) {
+    box.hidden = true;
+    showToast(`✓ ${okMsg}`);
+    return;
+  }
+  box.className = 'notice notice-error';
+  box.textContent = '바뀐 정보를 저장하지 못했어요. 위 경고를 확인해 주세요.';
   box.hidden = false;
-  setTimeout(() => {
-    if (box.classList.contains('notice-info')) box.hidden = true;
-  }, 3000);
+  showToast(SAVE_FAILED, false);
 }
 
 function showFormErrors(form, prefix, errors) {
@@ -467,7 +486,8 @@ function updateDetailScore(listing) {
       <div class="stat"><dt>필수 확인</dt><dd>${p.essential.done}<small> / ${p.essential.count}</small></dd></div>
       <div class="stat"><dt>전체 확인</dt><dd>${s.answered}<small> / ${s.total}</small></dd></div>
     </dl>
-    ${reasons.length ? `<p class="note">${s.verdict === 'fail' ? '문제' : '미확인'}: ${esc(reasons.join(', '))}</p>` : ''}`;
+    ${reasons.length ? `<p class="note">${s.verdict === 'fail' ? '문제' : '미확인'}: ${esc(reasons.join(', '))}</p>` : ''}
+    <p class="autosave-side ${state.storageOK ? '' : 'autosave-off'}"><span class="autosave-dot" aria-hidden="true"></span>${state.storageOK ? '고르는 즉시 자동 저장돼요' : '이 브라우저에서는 저장되지 않아요'}</p>`;
   for (const tier of state.checklist.tiers) {
     const el = document.getElementById(`tier-score-${tier.id}`);
     if (!el) continue;
@@ -677,8 +697,9 @@ function bindEvents() {
     if (input.value) listing.answers[itemId] = input.value;
     else delete listing.answers[itemId];
     listing.updatedAt = Date.now();
-    save();
+    const ok = save();
     updateDetailScore(listing);
+    showToast(ok ? '✓ 저장했어요' : SAVE_FAILED, ok);
   });
 }
 

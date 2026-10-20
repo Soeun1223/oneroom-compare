@@ -92,7 +92,7 @@
         <div class="detail-main">
           <section aria-labelledby="check-title">
             <h3 id="check-title">체크리스트</h3>
-            <p class="help">고르는 즉시 저장돼요.</p>
+            <p class="autosave-note"><span class="autosave-dot" aria-hidden="true"></span><strong>자동 저장</strong> 고르는 즉시 저장돼요. 저장 버튼을 따로 누를 필요가 없어요.</p>
             <div id="checklist-body"></div>
           </section>
         </div>
@@ -171,6 +171,9 @@
       <p>입력한 매물 정보는 서버로 보내지 않고 이 브라우저(localStorage)에만 저장됩니다.</p>
     </div>
   </footer>
+
+  <!-- 저장 알림: 잠깐 떴다가 사라진다 -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>
