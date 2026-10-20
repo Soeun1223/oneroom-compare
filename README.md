@@ -47,8 +47,7 @@
 
 | 데이터 | 출처 | 이용 조건 | 갱신일 |
 |---|---|---|---|
-| 체크리스트 항목 (`data/checklist.json`, 27개: 필수 5·중요 13·있으면 좋음 9) | 월세 계약 주의사항 확인해야 할 7가지 (https://www.naezipscan.com/blog/wolse-contract-tips?gad_source=1&gad_campaignid=21077299364&gbraid=0AAAAAo4ll2eetRPfPVcCyEkpoe0jvMmEs&gclid=CjwKCAjwotzWBhBFEiwA1JhPoKPZjvmWnEKr1ZnBdj0Iq_S0VnN_bqFwPdCW5zgq3opp1y65eTTIhRoCl5IQAvD_BwE) 네이버 블로그 - 집 볼 때 자취방 체크리스트 같이 살펴보아요 (https://m.blog.naver.com/annaae/223422223701)
- | 위 글을 통해 확인할 항목을 참고했고, 문장은 새로 작성함. | 2026-10-14 |
+| 체크리스트 항목 (`data/checklist.json`, 27개: 필수 5·중요 13·있으면 좋음 9) | 내집스캔 블로그 「월세 계약 주의사항 확인해야 할 7가지」 (https://www.naezipscan.com/blog/wolse-contract-tips)<br>네이버 블로그 「집 볼 때 자취방 체크리스트 같이 살펴보아요」 (https://m.blog.naver.com/annaae/223422223701) | 위 글을 통해 확인할 항목을 참고했고, 문장은 새로 작성함. | 2026-10-14 |
 | 매물 정보·체크 결과·위치 참고 정보 | 사용자가 직접 입력 | 사용자 본인 브라우저에만 저장 | 사용자가 입력할 때마다 |
 
 - **개인정보:** 회원가입이나 서버가 없다. 입력한 내용은 사용자의 브라우저(localStorage)에만 저장되고 어디로도 전송되지 않는다. 매물 이름, 보증금, 월세, 관리비, 그리고 선택으로 동네 이름과 도보 시간만 받는다. 입력 칸에는 "집주인 연락처 같은 개인정보는 적지 마세요"라고 안내한다. 위치는 동 이름까지만 받고, 번지·호수·도로명 번호처럼 상세 주소로 보이는 입력은 막는다.
@@ -57,8 +56,9 @@
 
 ## 6. 검증 기록
 
-- **언제·어디서:** 2026-10-17, 공개 URL(https://soeun1223.github.io/oneroom-compare/, 1~13번은 커밋 `b9f95e4` 배포본, 14번은 색을 고친 커밋 `f83c726` 배포본). 15번은 2026-10-20 로컬 수정본에서 확인.
-- **방법:** Claude Code의 내장 브라우저(Chromium)로 화면을 조작하고, 화면에 뜬 문구와 저장 값을 그대로 옮겨 적었다. 시작 전에 저장 기록을 비웠다.2026-10-20 20:45 iphone(Safari), 2026-10-20 20:48 노트북(Chrome) 
+- **언제·어디서:** 2026-10-17, 공개 URL(https://soeun1223.github.io/oneroom-compare/, 1~13번은 커밋 `b9f95e4` 배포본, 14번은 색을 고친 커밋 `f83c726` 배포본). 15번은 2026-10-20 로컬 수정본에서 확인한 뒤 공개 URL(커밋 `5590ed6` 배포본)에서 다시 확인.
+- **방법:** Claude Code의 내장 브라우저(Chromium)로 화면을 조작하고, 화면에 뜬 문구와 저장 값을 그대로 옮겨 적었다. 시작 전에 저장 기록을 비웠다.
+- **직접 확인:** 2026-10-20 20:45 iPhone(Safari), 2026-10-20 20:48 노트북(Chrome)
 - **근거 칸 읽는 법:** "재현"은 누구나 따라 해 볼 수 있는 방법, 따옴표는 화면에 실제로 뜬 문구, 계산식은 손으로 검산한 값이다.
 
 | # | 입력 | 기대 결과 | 실제 결과 | 판단 | 근거 |
@@ -96,6 +96,7 @@
 ## 8. 사용한 자료와 AI 도움
 
 **사용한 자료**
+- 체크리스트 항목 참고: 내집스캔 블로그 「월세 계약 주의사항 확인해야 할 7가지」, 네이버 블로그 「집 볼 때 자취방 체크리스트 같이 살펴보아요」 (주소는 5번 표 참고)
 - 글꼴: [Pretendard](https://github.com/orioncactus/pretendard) v1.3.9 (SIL Open Font License 1.1), jsDelivr CDN으로 불러옴
 
 **AI 도움 (Claude Code)**
